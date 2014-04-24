@@ -49,15 +49,11 @@ handle_cast(increment, State=#state{n=N, ending_n=EndingN}) ->
 			gen_server:cast(self(), done),
 			N;
 		true ->
-			gen_server:cast(self(), {check, N}),
+			supervisor:start_child(prime_check_sup, [N]),
 			gen_server:cast(self(), increment),
 			N + 1
 		end,
 	{noreply, State#state{n=NewN}};
-handle_cast({check, N}, State) ->
-	%% spawn new process to check N
-	supervisor:start_child(prime_check_sup, [N]),
-	{noreply, State};
 handle_cast({prime, N}, State=#state{primes=Primes}) ->
 	NewPrimes = [N|Primes],
 	io:format("~p is a safe prime~n", [N]),
