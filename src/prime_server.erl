@@ -3,6 +3,7 @@
 
 -record(state, {
 	n,
+	starting_n,
 	ending_n,
 	primes = []
 							 }).
@@ -12,12 +13,18 @@
 -export([start_link/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
--export([get_count/0]).
+-export([get_count/0, get_current_number/0]).
 
 
 
 get_count() ->
 	supervisor:count_children(prime_check_sup).
+
+get_current_number() ->
+	{N, StartingN, EndingN} = gen_server:call(prime_server, current_num),
+	DiffStart = N - StartingN,
+	DiffEnd = EndingN - N,
+	io:format("current is ~p which is ~p above starting and ~p away from ending~n", [N, DiffStart, DiffEnd]).
 
 
 
@@ -36,9 +43,11 @@ init([]) ->
 	EndingN = 115792089237316195423570985008687907853269984665640564039457584007913129639935,
 	%EndingN = 10000,
 	gen_server:cast(self(), increment),
-	{ok, #state{n=StartingN, ending_n=EndingN}}.
+	{ok, #state{starting_n=StartingN, n=StartingN, ending_n=EndingN}}.
 
 
+handle_call(current_num, _From, State=#state{n=N, ending_n=EndingN, starting_n=StartingN}) ->
+	{reply, {N, StartingN, EndingN}, State};
 handle_call(Msg, _From, State) ->
 	io:format("received unknown call message: ~p~n", [Msg]),
 	{noreply, State}.
