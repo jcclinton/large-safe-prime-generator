@@ -37,13 +37,14 @@ start_link() ->
 init([]) ->
 	%% this is the smallest 32 bit number
 	StartingN = 452312848583266388373324160190187140051835877600158453279131187530910662656,
+	NewStartingN = 150000000 + StartingN,
 	%StartingN = 1,
 	io:format("prime SERVER: started with ~p~n", [StartingN]),
 	%% this is the largest 32 bit number
 	EndingN = 115792089237316195423570985008687907853269984665640564039457584007913129639935,
 	%EndingN = 10000,
 	gen_server:cast(self(), increment),
-	{ok, #state{starting_n=StartingN, n=StartingN, ending_n=EndingN}}.
+	{ok, #state{starting_n=StartingN, n=NewStartingN, ending_n=EndingN}}.
 
 
 handle_call(current_num, _From, State=#state{n=N, ending_n=EndingN, starting_n=StartingN}) ->
@@ -58,9 +59,13 @@ handle_cast(increment, State=#state{n=N, ending_n=EndingN}) ->
 			gen_server:cast(self(), done),
 			N;
 		true ->
-			supervisor:start_child(prime_check_sup, [N]),
+			Num = 4,
+			lists:foreach(fun(N2) ->
+				%io:format("~p~n", [N2]),
+				supervisor:start_child(prime_check_sup, [N2])
+			end, lists:seq(N, N+Num)),
 			gen_server:cast(self(), increment),
-			N + 1
+			N + Num + 1
 		end,
 	{noreply, State#state{n=NewN}};
 handle_cast({prime, N}, State=#state{primes=Primes}) ->

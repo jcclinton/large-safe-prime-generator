@@ -16,7 +16,7 @@
 
 
 start_link(N) ->
-	gen_server:start_link({local, ?MODULE}, ?MODULE, N, []).
+	gen_server:start_link(?MODULE, N, []).
 
 init(N) ->
 	%io:format("check SERVER: started for ~p~n", [N]),
