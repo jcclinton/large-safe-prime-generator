@@ -37,7 +37,7 @@ start_link() ->
 init([]) ->
 	%% this is the smallest 32 bit number
 	StartingN = 452312848583266388373324160190187140051835877600158453279131187530910662656,
-	NewStartingN = 150000000 + StartingN,
+	NewStartingN = 172116699 + StartingN,
 	%StartingN = 1,
 	io:format("prime SERVER: started with ~p~n", [StartingN]),
 	%% this is the largest 32 bit number
