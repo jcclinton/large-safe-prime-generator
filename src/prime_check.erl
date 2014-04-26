@@ -58,5 +58,5 @@ terminate(_Reason, _State) ->
 	ok.
 
 is_safe_prime(N) ->
-	P = round((N-1)/2),
+	P = (N-1) div 2,
 	miller_rabin:is_prime(P).
